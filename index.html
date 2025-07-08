@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/yorha@1.2.0/dist/yorha.min.css" type="text/css">
+<h1>Nixstix</h1>
+<p>Static Site Generated Readme2Site with Nix</p>
+<h2>Why?</h2>
+<p>Ever feel like the GitHub readme is a little too dull but you don't have the time to spruce up the documentation?</p>
+<p>Static site generators have been around but they are not in the project repo oftentimes because the media assets can be a little clunky and bloaty and therefore docs are either in a separate repo or a submodule for bigger projects.</p>
+<p>That separation of concern is when the project's documentation begins to tilt towards neglect and they get further away from new features and updates.</p>
+<p>This template is meant to solve a problem in the beginning when you perform your inits. With Nix, it's a light-weight dependency graph based on nix-derivations in <code>nixlang</code>. If your project gets big, your documentation grows with it and hopefully flourishes as well.</p>
+<h2>Why Nix?</h2>
+<p>Because an index.html is simply copied from nix builds, you can fearlessly rotate your documentationi without it spinning away from your core project. Static site generators need performance and community theming to raid boss fight against wordpress and evil proprietary software. But a humble landing page of a repo simply needs to look and feel modern, inviting and have your branding with minimal effort to an efficient end.</p>
+<p>The only dependency is <code>cmark-gfm</code> and <code>taskfile</code>. The latter is mainly for the helpers and built-in completions.</p>
+<pre><code class="language-bash">task deploy:readme
+</code></pre>
+<h2>ToDos</h2>
+<p>-[ ] While this isn't a blog or a website. It certainly has the ability to morph into anything and everything with nix and version control. Therefore, I'm looking to integrate further into lazygit or some kind of charm TUI framework to make choosing themes from <a href="https://cssbed.com">cssbed</a>
+-[ ] WASM. One thing I have discovered is that Github static site hosting does work with serving wasm mime-types correctly and therefore, there are some really neat sensible defaults to be had with minimal scripting.
+-[ ] First things first, github pages deploy</p>
+<h2>Picture puurrrrfect</h2>
+<p>Documentation doesn't need pictures, and often times they can be distracting. That's why READMEs stay bland while the landing page gets to do branding or marketing on some more real estate. <code>tgpt</code> just so happens to be a great little terminal tool to generate images and my task piping awks back a link to the image in <code>markdown</code> format.</p>
+<pre><code class="language-bash">task mdimg -- &lt;prompt for an image&gt;
+</code></pre>
+<h2>Stay tuned</h2>
+<hr />
+<p>made in germany</p>
