@@ -14,6 +14,7 @@
         packages = {
           default = pkgs.callPackage ./default.nix {};
           readme = pkgs.callPackage ./src/readme.nix {};
+          gs = pkgs.callPackage ./src/googlesheets.nix {};
         };
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
