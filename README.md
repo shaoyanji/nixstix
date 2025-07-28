@@ -14,6 +14,25 @@ This template is meant to solve a problem in the beginning when you perform your
 
 ## Why Nix?
 
+There's a lot of versatility when it comes to tempalting with Nix. There is an option to create a very funky lisp-like html-replacement syntax.
+
+```nix
+head
+(meta "charset" <| "utf-8")
+(meta "name" <| "viewport")
+(meta "content" <| "width=device-width, initial-scale=1")
+(title.struct <| "$(${title.h1})")
+(style <| yorha)
+|> html (lang <| "en")
+<| body.struct
+"$(${body.contents})"
+(script <| alpinejs)
+(codify sourcefile |> toggle)
+(toggle <| banner);
+```
+
+Or use a very familiar html markup and then use optional nix syntax interpolate and parse variables with nix functions and bash.
+
 Because an index.html is simply copied from nix builds, you can fearlessly rotate your documentationi without it spinning away from your core project. Static site generators need performance and community theming to raid boss fight against wordpress and evil proprietary software. But a humble landing page of a repo simply needs to look and feel modern, inviting and have your branding with minimal effort to an efficient end.
 
 The only dependency is `cmark-gfm` and `taskfile`. The latter is mainly for the helpers and built-in completions.
@@ -37,5 +56,3 @@ task mdimg -- <prompt for an image>
 ```
 
 ## Stay tuned
-
----

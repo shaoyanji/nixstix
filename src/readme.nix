@@ -7,11 +7,15 @@
   footer = "footer";
 in
   runCommandWith {
-    name = "marky";
+    name = "readme";
     derivationArgs.nativeBuildInputs = [cmark-gfm];
-  } ''
+  }
+  /*
+  bash
+  */
+  ''
     mkdir -p $out
-    echo '<link rel="stylesheet" href="${style}" type="text/css">' >> ${index}
+    echo '<link rel="stylesheet" href="${style}" type="text/css">' > ${index}
     cat ${../README.md} | cmark-gfm  -t html >> ${index}
     echo ${footer} | cmark-gfm -t html >> ${index}
   ''

@@ -10,7 +10,7 @@
   footer = "footer";
 in
   runCommandWith {
-    name = "marky";
+    name = "googlesheets";
     derivationArgs.nativeBuildInputs = [cmark-gfm];
   }
   /*
@@ -96,7 +96,7 @@ in
                  }
                  </script>
                  <script src="${alpine}" defer></script>
-                 </body>
-                 </html>' >> ${index}
-
+          </body>
+    </html>'
+    >> ${index}
   ''

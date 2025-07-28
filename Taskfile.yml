@@ -13,7 +13,7 @@ tasks:
     vars:
       BUILD: "{{index .MATCH 0}}"
     cmds:
-      - nix build .#{{.BUILD}}
+      - nix build --extra-experimental-features pipe-operator .#{{.BUILD}}
       - cp result/index.html index.html
       - git add index.html
         && git commit -m "{{.BUILD}}"
