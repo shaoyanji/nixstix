@@ -40,7 +40,7 @@
     html
     */
     ''
-          <nav aria-label="Breadcrumb">
+      <nav aria-label="Breadcrumb">
         <ul class="uk-breadcrumb">
           <li><a href="#">Home</a></li>
           <li><a href="#">Linked Category</a></li>
@@ -74,7 +74,7 @@
   dochtml = l: head: body: ''<!doctype html>${l}${head}${body}</html>'';
   lang = l: ''<html lang="${l}">'';
   head = h: ''<head>${lib.concatStrings h}</head>'';
-  meta = n: f: ''<meta ${n}="${f}" />'';
+  meta = n: f: ''<meta ${n}="${f}" >'';
   body = b: ''<body>${lib.concatStrings b}</body>'';
   contents = "$(${md2html sourcefile.path})";
   title = t: ''<title>$(${htmlquery sourcefile.path "${t}"})</title>'';

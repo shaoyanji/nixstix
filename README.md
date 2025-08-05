@@ -43,9 +43,10 @@ task deploy:readme
 
 ## ToDos
 
--[ ] While this isn't a blog or a website. It certainly has the ability to morph into anything and everything with nix and version control. Therefore, I'm looking to integrate further into lazygit or some kind of charm TUI framework to make choosing themes from [cssbed](https://cssbed.com)
--[ ] WASM. One thing I have discovered is that Github static site hosting does work with serving wasm mime-types correctly and therefore, there are some really neat sensible defaults to be had with minimal scripting.
--[ ] First things first, github pages deploy
+- [ ] While this isn't a blog or a website. It certainly has the ability to morph into anything and everything with nix and version control. Therefore, I'm looking to integrate further into lazygit or some kind of charm TUI framework to make choosing themes from [cssbed](https://cssbed.com)
+- [ ] WASM. One thing I have discovered is that Github static site hosting does work with serving wasm mime-types correctly and therefore, there are some really neat sensible defaults to be had with minimal scripting.
+- [ ] First things first, github pages deploy
+- [ ] TOML as the standard for nix transmogrification
 
 ## Picture puurrrrfect
 
