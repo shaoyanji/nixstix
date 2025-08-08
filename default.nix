@@ -19,7 +19,7 @@
       ])
     ]
     |> dochtml (lang "en")
-    <| body [
+    body [
       # pines.navbar
       # franken.navbar
       contents
