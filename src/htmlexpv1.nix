@@ -2,10 +2,36 @@
   pkgs ? import <nixpkgs> {},
   lib,
   runCommandWith,
-  yj,
   cmark-gfm,
   htmlq,
 }: let
+  fw =
+    head [
+      (meta "charset" "utf-8")
+      (meta "name" "viewport")
+      (meta "content" "width=device-width, initial-scale=1")
+      (title "h1")
+      (styles.links [
+        cssbed.yorha
+        # cssbed.sakura-vader
+        bx.brands
+        # franken.link
+      ])
+    ]
+    |> dochtml (lang "en")
+    <| body [
+      # pines.navbar
+      # franken.navbar
+      contents
+      (alpinejs.toggle "src" <| codify sourcefile.content)
+      (alpinejs.toggle "Tech used" banner)
+      (scripts [
+        alpinejs.link
+        # datastar
+        # tailwind
+      ])
+      # htmz
+    ];
   datastar = "https://cdn.jsdelivr.net/gh/starfederation/datastar@main/bundles/datastar.js";
   htmz = ''<iframe hidden name=htmz onload='setTimeout(()=>document.querySelector(contentWindow.location.hash||null)?.replaceWith(...contentDocument.body.childNodes))'></iframe>'';
   franken.link = "https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.16/dist/css/core.min.css";
@@ -52,13 +78,9 @@
   body = b: ''<body>${lib.concatStrings b}</body>'';
   contents = "$(${md2html sourcefile.path})";
   title = t: ''<title>$(${htmlquery sourcefile.path "${t}"})</title>'';
-  scripts = (ss:
-    builtins.concatMap (x: ["<script src=" x " defer></script>"]) ss)
-  lib.concatStrings;
+  scripts = ss: builtins.concatMap (x: ["<script src=" x " defer></script>"]) ss |> lib.concatStrings;
   styles = {
-    links = (sty:
-      builtins.concatMap (x: ["<link rel='stylesheet' href= " x " >"]) sty)
-    lib.concatStrings;
+    links = sty: builtins.concatMap (x: ["<link rel='stylesheet' href= " x " >"]) sty |> lib.concatStrings;
   };
   alpinejs = {
     link = "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js";
@@ -75,9 +97,7 @@
   };
 
   bx = {
-    icons = i:
-      builtins.concatMap (x: ["<i class='" x "' ></i>"]) i
-      lib.concatStrings;
+    icons = i: builtins.concatMap (x: ["<i class='" x "' ></i>"]) i |> lib.concatStrings;
     brands = "https://cdn.boxicons.com/fonts/brands/boxicons-brands.min.css";
   };
   cssbed = {
@@ -118,27 +138,18 @@
     ])
   ];
   sourcefile = {
-    content = builtins.readFile ./README.md;
-    path = ./README.md;
+    content = builtins.readFile ../README.md;
+    path = ../README.md;
   };
-  yaml2json = file: "${pkgs.yj}/bin/yj < ${file}";
-  json2yaml = file: "${pkgs.yj}/bin/yj -jy < ${file}";
-  ourfile = ./something.json;
-  importYaml = file: builtins.fromJSON builtins.readFile file;
 in
   runCommandWith {
     name = "nixstix";
-    derivationArgs.nativeBuildInputs = [
-      #     # cmark-gfm
-      #     #  htmlq
-      yj
-    ];
+    derivationArgs.nativeBuildInputs = [cmark-gfm htmlq];
   }
-  # /*
-  # bash
-  # */
-  # # echo "${builtins.toString sourcefile.content}"  > $out
+  /*
+  bash
+  */
   ''
-    ${json2yaml ourfile} > $out
-
+    mkdir -p $out
+    echo "${fw}" > ${index}
   ''

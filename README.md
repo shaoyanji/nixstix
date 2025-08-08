@@ -47,6 +47,8 @@ task deploy:readme
 - [ ] WASM. One thing I have discovered is that Github static site hosting does work with serving wasm mime-types correctly and therefore, there are some really neat sensible defaults to be had with minimal scripting.
 - [ ] First things first, github pages deploy
 - [ ] TOML as the standard for nix transmogrification
+- [x] Initialized phase one using yj for toml json and yq configuration
+- [x] discovered xml trick to turn markdown into yaml with a oneline. but isn't fully interchangeable yet
 
 ## Picture puurrrrfect
 
