@@ -1,12 +1,9 @@
-{pkgs ? <nixpkgs> {}}:
+{ pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
-  buildInputs = with pkgs; [
-    yj
-    comrak
-    # cmark-gfm
-    # tgpt
-    # go-task
-    # yq-go
-    # fzf
+  packages = with pkgs; [
+    cmark-gfm
+    htmlq
+    nixfmt-rfc-style
+    ripgrep
   ];
 }

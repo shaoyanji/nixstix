@@ -1,0 +1,136 @@
+:root {
+  color-scheme: light;
+  --bg: #f3efe5;
+  --paper: #fffdf8;
+  --ink: #1f1c19;
+  --muted: #5d554d;
+  --accent: #b14d2a;
+  --border: #d8cfc0;
+  --code: #f4ead7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+  background:
+    radial-gradient(circle at top, rgba(177, 77, 42, 0.08), transparent 32rem),
+    var(--bg);
+  color: var(--ink);
+}
+
+body {
+  margin: 0;
+  line-height: 1.65;
+}
+
+a {
+  color: var(--accent);
+}
+
+code,
+pre {
+  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  background: var(--code);
+}
+
+code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.3rem;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+.page-shell {
+  width: min(72rem, calc(100vw - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.site-header {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.site-title {
+  font-size: clamp(1.5rem, 2vw + 1rem, 2.4rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.hero {
+  padding: 2.5rem 0 1rem;
+}
+
+.hero p,
+.lede {
+  max-width: 44rem;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 0.8rem 2rem rgba(31, 28, 25, 0.05);
+}
+
+.readme {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1rem 3rem rgba(31, 28, 25, 0.06);
+}
+
+.demo-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.chip-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+@media (max-width: 640px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

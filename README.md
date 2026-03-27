@@ -1,61 +1,133 @@
-# Nixstix
+# nixstix
 
-Static Site Generated Readme2Site with Nix
+`nixstix` is a small static site generator written in Nix.
 
-## Why?
+It is intentionally narrow:
 
-Ever feel like the GitHub readme is a little too dull but you don't have the time to spruce up the documentation?
+- author a page as a small Nix AST
+- render that AST into HTML
+- build a static site directory in `$out`
 
-Static site generators have been around but they are not in the project repo oftentimes because the media assets can be a little clunky and bloaty and therefore docs are either in a separate repo or a submodule for bigger projects.
+The project is not trying to become a blog engine, CMS, plugin platform, or JavaScript framework. It is a thin Nix-first tool for producing plain static HTML.
 
-That separation of concern is when the project's documentation begins to tilt towards neglect and they get further away from new features and updates.
+## Architecture
 
-This template is meant to solve a problem in the beginning when you perform your inits. With Nix, it's a light-weight dependency graph based on nix-derivations in `nixlang`. If your project gets big, your documentation grows with it and hopefully flourishes as well.
+The stable shape is:
 
-## Why Nix?
+- `lib/dsl.nix` — page and node constructors
+- `lib/render.nix` — pure HTML rendering
+- `lib/site.nix` — static file output builder
+- `lib/markdown.nix` — markdown adapter
+- `lib/data.nix` — JSON/TOML helpers
+- `src/pages/` — page definitions
+- `src/content/` — markdown or other content inputs
+- `assets/` — copied static assets
 
-There's a lot of versatility when it comes to tempalting with Nix. There is an option to create a very funky lisp-like html-replacement syntax.
+The core model stays explicit:
+
+1. Nix AST
+2. Renderer
+3. Static files in `$out`
+
+## Stable Authoring Surface
+
+This pass treats the following DSL functions as the baseline author-facing API:
+
+- `text`
+- `raw`
+- `el`
+- `attrs`
+- `fragment`
+- `page`
+- `stylesheet`
+- `script`
+- `markdown`
+
+Example:
 
 ```nix
-head
-(meta "charset" <| "utf-8")
-(meta "name" <| "viewport")
-(meta "content" <| "width=device-width, initial-scale=1")
-(title.struct <| "$(${title.h1})")
-(style <| yorha)
-|> html (lang <| "en")
-<| body.struct
-"$(${body.contents})"
-(script <| alpinejs)
-(codify sourcefile |> toggle)
-(toggle <| banner);
+{ dsl, markdown }:
+
+dsl.page {
+  title = "Docs";
+  route = "docs/index.html";
+  head = [ (dsl.stylesheet "/assets/site.css") ];
+  body = [
+    (dsl.el "main" { class = "page-shell"; } [
+      (dsl.el "h1" {} [ (dsl.text "Docs") ])
+      (dsl.markdown (markdown.fromFile ../README.md))
+    ])
+  ];
+}
 ```
 
-Or use a very familiar html markup and then use optional nix syntax interpolate and parse variables with nix functions and bash.
+## What Ships Today
 
-Because an index.html is simply copied from nix builds, you can fearlessly rotate your documentationi without it spinning away from your core project. Static site generators need performance and community theming to raid boss fight against wordpress and evil proprietary software. But a humble landing page of a repo simply needs to look and feel modern, inviting and have your branding with minimal effort to an efficient end.
+- a default site build that preserves the README-to-site flow
+- a nested example page migrated from the old HTML experiment
+- a static asset copy step for CSS and similar files
+- cheap deterministic flake checks for output presence and content markers
 
-The only dependency is `cmark-gfm` and `taskfile`. The latter is mainly for the helpers and built-in completions.
+## Commands
 
-```bash
-task deploy:readme
+Build the default site:
+
+```sh
+nix build .#default
 ```
 
-## ToDos
+Build the README-focused site:
 
-- [ ] While this isn't a blog or a website. It certainly has the ability to morph into anything and everything with nix and version control. Therefore, I'm looking to integrate further into lazygit or some kind of charm TUI framework to make choosing themes from [cssbed](https://cssbed.com)
-- [ ] WASM. One thing I have discovered is that Github static site hosting does work with serving wasm mime-types correctly and therefore, there are some really neat sensible defaults to be had with minimal scripting.
-- [ ] First things first, github pages deploy
-- [ ] TOML as the standard for nix transmogrification
-- [x] Initialized phase one using yj for toml json and yq configuration
-- [x] discovered xml trick to turn markdown into yaml with a oneline. but isn't fully interchangeable yet
-
-## Picture puurrrrfect
-
-Documentation doesn't need pictures, and often times they can be distracting. That's why READMEs stay bland while the landing page gets to do branding or marketing on some more real estate. `tgpt` just so happens to be a great little terminal tool to generate images and my task piping awks back a link to the image in `markdown` format.
-
-```bash
-task mdimg -- <prompt for an image>
+```sh
+nix build .#readme
 ```
 
-## Stay tuned
+Build the HTML experiment:
+
+```sh
+nix build .#htmlexp
+```
+
+Run validation:
+
+```sh
+nix flake check
+```
+
+Open a development shell:
+
+```sh
+nix develop
+```
+
+## Validation Expectations
+
+Now that Nix is part of the working environment, changes should be validated with real Nix commands instead of static inspection alone.
+
+At minimum:
+
+- `nix build .#default`
+- `nix build .#readme`
+- `nix build .#htmlexp`
+- `nix flake check`
+
+The checks are deliberately lightweight. They verify that:
+
+- the default site emits `index.html`
+- the nested experiment page exists
+- rendered HTML contains expected title/body markers
+
+## Non-goals
+
+`nixstix` is explicitly not doing the following in this product boundary:
+
+- blog engine behavior
+- plugin systems
+- JavaScript framework integration
+- dynamic server behavior
+- content management features
+
+## Notes
+
+- The old prototype files were moved out of the core product path into `src/legacy/`.
+- The implementation favors small pure functions and deterministic build outputs over abstraction breadth.
