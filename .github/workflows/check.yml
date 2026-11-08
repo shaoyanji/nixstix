@@ -1,0 +1,35 @@
+name: check
+
+# The gate this repo already has, run where a broken commit is caught: every
+# `checks` entry (link audit, nav, content routing, the text render) plus the
+# default site build. No publish step — nixstix is consumed as a flake input,
+# and the site that uses it has its own deploy.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # `nix flake check` builds the current system's checks only, so the
+      # aarch64 and darwin entries are not attempted on this runner.
+      - name: Check
+        run: nix flake check --print-build-logs
