@@ -6,7 +6,8 @@ name: check
 # and the site that uses it has its own deploy.
 on:
   push:
-    branches: [main]
+    # This repo's default branch is `master`, unlike hub-site's `main`.
+    branches: [master]
   pull_request:
   workflow_dispatch:
 
