@@ -28,15 +28,43 @@ let
         target = builtins.baseNameOf (toString asset);
       };
 
+  hrefOf = route:
+    let
+      normalized = normalizeRoute route;
+    in
+    if normalized == "index.html" then "/"
+    else if lib.hasSuffix "/index.html" normalized then "/" + lib.removeSuffix "index.html" normalized
+    else "/" + normalized;
+
+  # The index IS the nav: one entry per page that asks to appear, ordered by
+  # `navOrder`, labelled by `navLabel`. Nothing is typed twice.
+  navOf = pages:
+    lib.sort (a: b: a.order < b.order) (
+      map
+      (p: {
+        href = hrefOf p.route;
+        label = p.navLabel;
+        order = p.navOrder;
+      })
+      (lib.filter (p: p.showInNav) pages)
+    );
+
   writeSegment = outputPath: segment:
     if segment ? file
     then "cat ${segment.file} >> \"$out/${outputPath}\""
     else "printf '%s' ${lib.escapeShellArg segment.str} >> \"$out/${outputPath}\"";
 
-  writePageCommand = page:
+  writePageCommand = basePath: pages: page:
     let
       outputPath = normalizeRoute page.route;
-      segments = render.pageSegments markdown.toHtml page;
+      segments = render.pageSegments {
+        markdownHtml = markdown.toHtml;
+        inherit basePath;
+        nav = {
+          entries = navOf pages;
+          currentHref = hrefOf page.route;
+        };
+      } page;
     in
     ''
       mkdir -p "$(dirname "$out/${outputPath}")"
@@ -66,14 +94,18 @@ in
     name ? "nixstix-site",
     pages,
     assets ? [],
+    # A site served under a subpath (`/hub` on GitHub project pages) prefixes its
+    # own asset and nav links with this; page-local links are the page's business.
+    basePath ? "",
   }:
     pkgs.runCommand name {} ''
       mkdir -p "$out"
-      ${lib.concatMapStringsSep "\n" writePageCommand pages}
+      ${lib.concatMapStringsSep "\n" (writePageCommand basePath pages) pages}
       ${lib.concatMapStringsSep "\n" copyAssetCommand assets}
     '';
 
   # What a check or another flake needs without re-deriving the internals.
   inherit (render) escapeHtml;
   routes = pages: map (p: normalizeRoute p.route) pages;
+  nav = navOf;
 }

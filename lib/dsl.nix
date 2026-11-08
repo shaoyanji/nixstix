@@ -82,6 +82,13 @@ rec {
     inherit spec;
   };
 
+  # A slot, not a link list: the builder fills it from the pages that exist, so
+  # a new page appears in every nav without anyone editing a page.
+  nav = { label ? "Primary" }: {
+    type = "nav";
+    inherit label;
+  };
+
   page = {
     title,
     body,
@@ -91,9 +98,12 @@ rec {
     meta ? [],
     attrs ? {},
     description ? null,
+    showInNav ? true,
+    navLabel ? title,
+    navOrder ? 100,
   }: {
     type = "page";
-    inherit title route lang description;
+    inherit title route lang description showInNav navLabel navOrder;
     head = normalizeChildren head;
     meta = normalizeChildren meta;
     body = normalizeChildren body;

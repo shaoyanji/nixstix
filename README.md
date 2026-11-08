@@ -42,6 +42,7 @@ This pass treats the following DSL functions as the baseline author-facing API:
 - `stylesheet`
 - `script`
 - `markdown`
+- `nav`
 
 Example:
 
@@ -89,9 +90,30 @@ content edit rebuilds only the pages whose markdown changed. Markdown is a build
 input of the site, never an eval-time build, so `nix eval` on any page is
 sub-second and starts nothing.
 
+## Navigation Is Derived
+
+A page writes `(dsl.nav { })` where the nav belongs; the builder fills it from
+the pages themselves. Each page declares only its own place in that index:
+
+```nix
+page {
+  title = "Docs";
+  route = "docs/index.html";
+  navLabel = "Docs";   # defaults to `title`
+  navOrder = 10;       # ascending; ties keep input order
+  showInNav = true;    # false keeps the page out of the nav, not out of the site
+  ...
+}
+```
+
+Adding a page puts it in every nav, in order; the current page is marked with
+`aria-current="page"`. A hand-typed `<nav>` is the thing this replaces, and
+`checks.default-nav` pins the rendered result so it cannot come back.
+
 ## What Ships Today
 
 - a default site build that preserves the README-to-site flow
+- a nav index derived from the pages (`dsl.nav`, `navLabel`, `navOrder`, `showInNav`)
 - a nested example page migrated from the old HTML experiment
 - a static asset copy step for CSS and similar files
 - cheap deterministic flake checks for output presence, content markers, internal link resolution and renderer escaping

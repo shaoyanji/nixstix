@@ -11,6 +11,8 @@ in
 page {
   title = "Nixstix";
   route = "index.html";
+  navLabel = "Home";
+  navOrder = 10;
   description = "A thin Nix-first static site generator for HTML and README publishing.";
   head = [
     (stylesheet stylesheetHref)
@@ -24,10 +26,7 @@ page {
             (text "A Nix-first static HTML generator with a small DSL, a pure renderer, and a builder that emits a deployable site directory.")
           ])
         ])
-        (el "nav" { "aria-label" = "Primary"; } [
-          (el "a" { href = "/"; } [ (text "Home") ])
-          (el "a" { href = "/experiments/htmlexpv1/"; } [ (text "HTML Experiment") ])
-        ])
+        (dsl.nav { })
       ])
       (el "main" {} [
         (el "section" { class = "hero"; } [

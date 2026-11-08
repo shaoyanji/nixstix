@@ -22,18 +22,23 @@ dsl, render, markdown, data}`.
 - **The library is a flake output**, so another project builds its site with
   `inputs.nixstix.lib.${system}.site.buildSite` instead of importing four files
   by relative path.
+- **Navigation is derived.** `dsl.nav` is a slot the builder fills from the
+  pages; ordering, labels and `aria-current` come from the index, so adding a
+  page updates every nav.
 - **Checks assert structure, not prose.** `checks.default-links` walks every
-  built `href="/…"` and fails on one that names no file; `render-escape` pins
-  escaping and attribute rendering. The old marker greps stay as smoke tests.
+  built `href="/…"` and fails on one that names no file; `default-nav` pins the
+  derived nav; `render-escape` pins escaping and attribute rendering. The old
+  marker greps stay as smoke tests.
 
 ## Next steps, in order
 
-1. A route index: collect `page.route` once and expose it to pages, so a nav is
-   derived from the pages that exist rather than typed by hand.
+1. ~~A route index~~ — done: `dsl.nav` is a slot the builder fills from
+   `page.route` / `navLabel` / `navOrder` / `showInNav`, and `checks.default-nav`
+   pins the order, the labels and the current-page marker.
 2. A `site` app (`apps.<system>.<host>`) that serves a built site from the store
    over loopback — the same artifact production serves, no second copy.
-3. Only then: a content directory convention (`src/content/<route>.md` renders to
-   the matching route) so a docs tree needs no per-page Nix file.
+3. A content directory convention (`src/content/<route>.md` renders to the
+   matching route) so a docs tree needs no per-page Nix file.
 
 Keep the boundary: not a CMS, blog engine, plugin platform, JS framework or
 dynamic server.

@@ -5,6 +5,8 @@ in
 page {
   title = "HTML Experiment";
   route = "experiments/htmlexpv1/index.html";
+  navLabel = "HTML Experiment";
+  navOrder = 20;
   description = "A migrated nixstix HTML DSL experiment built on the shared renderer.";
   head = [
     (stylesheet stylesheetHref)
@@ -16,9 +18,7 @@ page {
           (el "div" { class = "site-title"; } [ (text "HTML Experiment") ])
           (el "p" { class = "lede"; } [ (text "The old prototype helpers now author against the shared DSL and renderer.") ])
         ])
-        (el "nav" { "aria-label" = "Primary"; } [
-          (el "a" { href = "/"; } [ (text "Back to home") ])
-        ])
+        (dsl.nav { })
       ])
       (el "main" { class = "demo-stack"; } [
         (el "section" { class = "card"; } [

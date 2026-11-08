@@ -75,6 +75,13 @@
               touch $out
             '';
             default-links = linkCheck "nixstix" defaultSite;
+            # The nav is derived from the pages: order, labels and the current
+            # page's marker all come from the index, not from the page text.
+            default-nav = pkgs.runCommand "nixstix-default-nav" { } ''
+              grep -Fq '<nav aria-label="Primary"><a href="/" aria-current="page">Home</a><a href="/experiments/htmlexpv1/">HTML Experiment</a></nav>' ${defaultSite}/index.html
+              grep -Fq '<nav aria-label="Primary"><a href="/">Home</a><a href="/experiments/htmlexpv1/" aria-current="page">HTML Experiment</a></nav>' ${defaultSite}/experiments/htmlexpv1/index.html
+              touch $out
+            '';
             # Attribute and text escaping, on the pure renderer.
             render-escape =
               assert lib.render.escapeHtml "<a href=\"x\">&'" == "&lt;a href=&quot;x&quot;&gt;&amp;&#39;";
