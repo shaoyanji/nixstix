@@ -126,9 +126,9 @@ in
         while IFS= read -r href; do
           rel="''${href#/}"
           if [ -n "$base" ]; then
-            case "$rel" in
-              "$base") rel="" ;;
-              "$base"/*) rel="''${rel#"$base"/}" ;;
+            case "$href" in
+              "$base"|"$base"/) rel="" ;;
+              "$base"/*) rel="''${href#"$base"/}" ;;
               *) echo "link outside $base: $f -> $href" >&2; exit 1 ;;
             esac
           fi
