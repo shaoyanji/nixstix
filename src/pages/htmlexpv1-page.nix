@@ -4,9 +4,9 @@ let
 in
 page {
   title = "HTML Experiment";
-  route = "experiments/htmlexpv1/index.html";
   navLabel = "HTML Experiment";
-  navOrder = 20;
+  navOrder = 30;
+  route = "experiments/htmlexpv1/index.html";
   description = "A migrated nixstix HTML DSL experiment built on the shared renderer.";
   head = [
     (stylesheet stylesheetHref)

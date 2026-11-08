@@ -18,9 +18,10 @@ The stable shape is:
 - `lib/render.nix` — pure HTML rendering
 - `lib/site.nix` — static file output builder
 - `lib/markdown.nix` — markdown adapter (source in, build-time html out)
+- `lib/content.nix` — the content step: a directory of markdown files becomes pages
 - `lib/data.nix` — JSON/TOML helpers
-- `src/pages/` — page definitions
-- `src/content/` — markdown or other content inputs
+- `src/pages/` — authored page definitions
+- `src/content/` — pages written as markdown; the path is the route
 - `assets/` — copied static assets
 
 The core model stays explicit:
@@ -90,6 +91,16 @@ content edit rebuilds only the pages whose markdown changed. Markdown is a build
 input of the site, never an eval-time build, so `nix eval` on any page is
 sub-second and starts nothing.
 
+Most sites need no page modules at all — `lib.content` turns a directory of
+markdown into pages, and `pages` takes those alongside any authored ones:
+
+```nix
+pages = lib.content.pages {
+  dir = ./content;                 # content/overview.md -> /overview/
+  site = { title = "my site"; };   # the default layout's brand
+};
+```
+
 ## Navigation Is Derived
 
 A page writes `(dsl.nav { })` where the nav belongs; the builder fills it from
@@ -110,14 +121,49 @@ Adding a page puts it in every nav, in order; the current page is marked with
 `aria-current="page"`. A hand-typed `<nav>` is the thing this replaces, and
 `checks.default-nav` pins the rendered result so it cannot come back.
 
+## Content Directory
+
+A markdown file under `src/content/` is a page, and its path is its route:
+
+| file                                     | route                       |
+| :--------------------------------------- | :-------------------------- |
+| `src/content/overview.md`                | `/overview/`                |
+| `src/content/guide/content-directory.md` | `/guide/content-directory/` |
+| `src/content/guide/index.md`             | `/guide/`                   |
+
+The page facts come from a frontmatter block, which is stripped before the
+markdown is rendered:
+
+```yaml
+---
+title: Content directory
+description: One markdown file per route.
+navLabel: Content Directory
+navOrder: 40
+showInNav: true
+---
+```
+
+`title` falls back to the body's first heading and then to the de-slugged file
+name, so a file with no frontmatter still has a page title. `route` overrides the
+path-derived route when a page needs to live elsewhere. An unclosed `---` block
+fails the build rather than publishing its keys as prose.
+
+A page module is still allowed, and `layout` decides how a markdown body sits in
+a document — it receives `{ page, content, site }` and the default one is a page
+shell with the site title, the derived nav and the page heading. The route and
+frontmatter rules are pinned by `checks.content-pure`; the rendered result by
+`checks.content-routes`.
+
 ## What Ships Today
 
 - a default site build that preserves the README-to-site flow
 - a nav index derived from the pages (`dsl.nav`, `navLabel`, `navOrder`, `showInNav`)
+- a content directory: `src/content/<route>.md` renders to its route with no page module
 - a nested example page migrated from the old HTML experiment
 - a static asset copy step for CSS and similar files
 - cheap deterministic flake checks for output presence, content markers, internal link resolution and renderer escaping
-- `lib.<system>.{site,dsl,render,markdown,data}` for other flakes
+- `lib.<system>.{site,dsl,render,markdown,content,data}` for other flakes
 
 ## Commands
 
@@ -167,7 +213,9 @@ The checks are deliberately lightweight. They verify that:
 - the default site emits `index.html`
 - the nested experiment page exists
 - rendered HTML contains expected title/body markers
-- every root-relative `href` in the built site names a file that exists
+- every root-relative `href` in the built site names a file that exists (`lib.site.checkLinks`)
+- content files land on their routes, and frontmatter never reaches the output
+- route derivation and frontmatter parsing hold as pure functions
 - escaping and attribute rendering hold on the pure renderer
 
 ## Non-goals

@@ -108,4 +108,40 @@ in
   inherit (render) escapeHtml;
   routes = pages: map (p: normalizeRoute p.route) pages;
   nav = navOf;
+
+  # A site is a directory of files, and a link that names no file is the one
+  # failure a static site cannot surface at build time. Root-relative links are
+  # resolved against the output tree; external ones are left alone. `basePath`
+  # is the subpath the site is published under (`/hub` on project pages), and a
+  # link outside it is a failure in its own right.
+  checkLinks = {
+    name ? "site",
+    basePath ? "",
+  }: site:
+    pkgs.runCommand "${name}-links" { } ''
+      cd ${site}
+      shopt -s globstar nullglob
+      base=${lib.escapeShellArg basePath}
+      for f in **/*.html; do
+        while IFS= read -r href; do
+          rel="''${href#/}"
+          if [ -n "$base" ]; then
+            case "$rel" in
+              "$base") rel="" ;;
+              "$base"/*) rel="''${rel#"$base"/}" ;;
+              *) echo "link outside $base: $f -> $href" >&2; exit 1 ;;
+            esac
+          fi
+          if [ -z "$rel" ]; then rel=index.html; fi
+          case "$rel" in
+            */) rel="''${rel}index.html" ;;
+          esac
+          if [ ! -e "$rel" ]; then
+            echo "broken link: $f -> $href" >&2
+            exit 1
+          fi
+        done < <(grep -o 'href="/[^"]*"' "$f" | cut -d'"' -f2)
+      done
+      touch $out
+    '';
 }

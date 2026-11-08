@@ -109,6 +109,27 @@ pre {
   box-shadow: 0 1rem 3rem rgba(31, 28, 25, 0.06);
 }
 
+.content {
+  max-width: 46rem;
+  padding: 2rem 0;
+}
+
+.content h1 {
+  margin-bottom: 0.25rem;
+}
+
+.content table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.content th,
+.content td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 0.75rem 0.4rem 0;
+  text-align: left;
+}
+
 .demo-stack {
   display: grid;
   gap: 1rem;

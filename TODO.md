@@ -7,7 +7,7 @@ pure renderer (`lib/render.nix`), a site builder (`lib/site.nix`), a markdown
 adapter (`lib/markdown.nix`) and data helpers (`lib/data.nix`).
 
 Packages: `default`, `readme`, `htmlexp`. Library output: `lib.<system>.{site,
-dsl, render, markdown, data}`.
+dsl, render, markdown, content, data}`.
 
 ## What this pass changed
 
@@ -37,8 +37,11 @@ dsl, render, markdown, data}`.
    pins the order, the labels and the current-page marker.
 2. A `site` app (`apps.<system>.<host>`) that serves a built site from the store
    over loopback — the same artifact production serves, no second copy.
-3. A content directory convention (`src/content/<route>.md` renders to the
-   matching route) so a docs tree needs no per-page Nix file.
+3. ~~A content directory convention~~ — done: `lib/content.nix` reads
+   `src/content/**/*.md`, derives each route from the path, takes title,
+   description and nav placement from a frontmatter block, and renders the body
+   through the same markdown step. `checks.content-pure` pins the route and
+   frontmatter rules; `checks.content-routes` pins the built pages.
 
 Keep the boundary: not a CMS, blog engine, plugin platform, JS framework or
 dynamic server.

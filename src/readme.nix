@@ -7,7 +7,6 @@ let
   page = import ./pages/index.nix {
     inherit dsl markdown;
     readmePath = ../README.md;
-    overviewPath = null;
     stylesheetHref = "/assets/site.css";
   };
 in

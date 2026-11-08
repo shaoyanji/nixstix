@@ -67,7 +67,7 @@ rec {
   # assembled at build time and no eval has to read a derivation.
   segmentsOf = ctx: node:
     if node == null then []
-    else if node.type == "markdown" then [ { file = ctx.markdownHtml node.spec.source; } ]
+    else if node.type == "markdown" then [ { file = ctx.markdownHtml node.spec; } ]
     else if node.type == "nav" then navSegments ctx node
     else if node.type == "stylesheet" then
       [

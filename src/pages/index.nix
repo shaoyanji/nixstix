@@ -2,7 +2,6 @@
   dsl,
   markdown,
   readmePath,
-  overviewPath ? null,
   stylesheetHref ? "/assets/site.css",
 }:
 let
@@ -49,10 +48,6 @@ page {
             (el "p" {} [ (text "Routes, pages, and static assets are emitted into a GitHub Pages-friendly directory tree.") ])
           ])
         ])
-        (if overviewPath == null then null else
-          (el "section" { class = "card"; } [
-            (dsl.markdown (markdown.fromFile overviewPath))
-          ]))
         (el "section" { class = "readme"; } [
           (dsl.markdown (markdown.fromFile readmePath))
         ])
