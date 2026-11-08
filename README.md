@@ -17,7 +17,7 @@ The stable shape is:
 - `lib/dsl.nix` — page and node constructors
 - `lib/render.nix` — pure HTML rendering
 - `lib/site.nix` — static file output builder
-- `lib/markdown.nix` — markdown adapter
+- `lib/markdown.nix` — markdown adapter (source in, build-time html out)
 - `lib/data.nix` — JSON/TOML helpers
 - `src/pages/` — page definitions
 - `src/content/` — markdown or other content inputs
@@ -61,12 +61,41 @@ dsl.page {
 }
 ```
 
+## Use It From Another Flake
+
+The library half is a flake output, so a project consumes the same code this
+repo builds its own site with:
+
+```nix
+{
+  inputs.nixstix.url = "github:shaoyanji/Nixstix";
+  outputs = { self, nixpkgs, nixstix }: let
+    system = "x86_64-linux";
+    pkgs = import nixpkgs { inherit system; };
+    lib = nixstix.lib.${system};
+  in {
+    packages.${system}.site =
+      lib.site.buildSite {
+        name = "my-site";
+        pages = [ (import ./site/pages/index.nix { inherit lib; }) ];
+        assets = [ ./site/assets ];
+      };
+  };
+}
+```
+
+`nix build .#site` writes one store path; serving it is the deploy step, and a
+content edit rebuilds only the pages whose markdown changed. Markdown is a build
+input of the site, never an eval-time build, so `nix eval` on any page is
+sub-second and starts nothing.
+
 ## What Ships Today
 
 - a default site build that preserves the README-to-site flow
 - a nested example page migrated from the old HTML experiment
 - a static asset copy step for CSS and similar files
-- cheap deterministic flake checks for output presence and content markers
+- cheap deterministic flake checks for output presence, content markers, internal link resolution and renderer escaping
+- `lib.<system>.{site,dsl,render,markdown,data}` for other flakes
 
 ## Commands
 
@@ -116,6 +145,8 @@ The checks are deliberately lightweight. They verify that:
 - the default site emits `index.html`
 - the nested experiment page exists
 - rendered HTML contains expected title/body markers
+- every root-relative `href` in the built site names a file that exists
+- escaping and attribute rendering hold on the pure renderer
 
 ## Non-goals
 
@@ -129,5 +160,8 @@ The checks are deliberately lightweight. They verify that:
 
 ## Notes
 
+- `nixpkgs` is pinned to a rev in `flake.nix`. A registry alias (`nixpkgs`) resolves
+  through each machine's own channel, so the same input built a different tree per
+  host and a consumer could not reproduce a site.
 - The old prototype files were moved out of the core product path into `src/legacy/`.
 - The implementation favors small pure functions and deterministic build outputs over abstraction breadth.

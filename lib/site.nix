@@ -2,6 +2,7 @@
 let
   lib = pkgs.lib;
   render = import ./render.nix { inherit lib; };
+  markdown = import ./markdown.nix { inherit pkgs; };
 
   hasExtension = route:
     builtins.match ".*\\.[^/]+$" route != null;
@@ -27,15 +28,20 @@ let
         target = builtins.baseNameOf (toString asset);
       };
 
+  writeSegment = outputPath: segment:
+    if segment ? file
+    then "cat ${segment.file} >> \"$out/${outputPath}\""
+    else "printf '%s' ${lib.escapeShellArg segment.str} >> \"$out/${outputPath}\"";
+
   writePageCommand = page:
     let
       outputPath = normalizeRoute page.route;
-      rendered = render.renderPage page;
-      renderedFile = pkgs.writeText "nixstix-${builtins.replaceStrings [ "/" ] [ "-" ] outputPath}" rendered;
+      segments = render.pageSegments markdown.toHtml page;
     in
     ''
       mkdir -p "$(dirname "$out/${outputPath}")"
-      cp ${renderedFile} "$out/${outputPath}"
+      : > "$out/${outputPath}"
+      ${lib.concatMapStringsSep "\n" (writeSegment outputPath) segments}
     '';
 
   copyAssetCommand = asset:
@@ -66,4 +72,8 @@ in
       ${lib.concatMapStringsSep "\n" writePageCommand pages}
       ${lib.concatMapStringsSep "\n" copyAssetCommand assets}
     '';
+
+  # What a check or another flake needs without re-deriving the internals.
+  inherit (render) escapeHtml;
+  routes = pages: map (p: normalizeRoute p.route) pages;
 }

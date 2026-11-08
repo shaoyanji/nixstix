@@ -1,25 +1,24 @@
 { pkgs }:
 let
-  sanitizeName = path:
-    let
-      base = builtins.baseNameOf (toString path);
-    in
+  # A store-file-name-safe form of a source path.
+  label = path:
     builtins.replaceStrings
-      [ "/" " " ":" ]
-      [ "-" "-" "-" ]
-      base;
-
-  renderFile = path:
-    builtins.readFile (pkgs.runCommand "${sanitizeName path}.html" {
-      nativeBuildInputs = [ pkgs.cmark-gfm ];
-    } ''
-      cmark-gfm -t html < ${path} > $out
-    '');
+    [ " " ":" "/" ]
+    [ "-" "-" "-" ]
+    (builtins.baseNameOf (toString path));
 in
 {
+  # The node carries the SOURCE. Rendering it to html is a build step of the
+  # site (see lib/site.nix), so evaluating a page never starts a build.
   fromFile = path: {
     kind = "markdown";
     source = path;
-    html = renderFile path;
   };
+
+  toHtml = path:
+    pkgs.runCommand "nixstix-md-${label path}" {
+      nativeBuildInputs = [ pkgs.cmark-gfm ];
+    } ''
+      cmark-gfm -t html < ${path} > $out
+    '';
 }
