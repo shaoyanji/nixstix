@@ -35,8 +35,9 @@ dsl, render, markdown, content, data}`.
 1. ~~A route index~~ — done: `dsl.nav` is a slot the builder fills from
    `page.route` / `navLabel` / `navOrder` / `showInNav`, and `checks.default-nav`
    pins the order, the labels and the current-page marker.
-2. A `site` app (`apps.<system>.<host>`) that serves a built site from the store
-   over loopback — the same artifact production serves, no second copy.
+2. ~~A serve app~~ — done: `apps.default` is `python3 -m http.server` bound to
+   127.0.0.1 against the built site's store path (`PORT` overrides 8000), so
+   `nix run` serves the artifact Pages gets rather than a second copy.
 3. ~~A content directory convention~~ — done: `lib/content.nix` reads
    `src/content/**/*.md`, derives each route from the path, takes title,
    description and nav placement from a frontmatter block, and renders the body

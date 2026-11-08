@@ -149,6 +149,10 @@ name, so a file with no frontmatter still has a page title. `route` overrides th
 path-derived route when a page needs to live elsewhere. An unclosed `---` block
 fails the build rather than publishing its keys as prose.
 
+A name starting with `_` is a partial, not a page: `content/_index.md` is content
+some page pulls in by path, and the content step reads the directory without
+routing it. A name starting with `.` is skipped the same way.
+
 A page module is still allowed, and `layout` decides how a markdown body sits in
 a document — it receives `{ page, content, site }` and the default one is a page
 shell with the site title, the derived nav and the page heading. The route and
@@ -162,6 +166,7 @@ frontmatter rules are pinned by `checks.content-pure`; the rendered result by
 - a content directory: `src/content/<route>.md` renders to its route with no page module
 - a nested example page migrated from the old HTML experiment
 - a static asset copy step for CSS and similar files
+- `nix run` serves the built site from the store on loopback (`PORT` overrides 8000)
 - cheap deterministic flake checks for output presence, content markers, internal link resolution and renderer escaping
 - `lib.<system>.{site,dsl,render,markdown,content,data}` for other flakes
 
@@ -183,6 +188,13 @@ Build the HTML experiment:
 
 ```sh
 nix build .#htmlexp
+```
+
+Serve the built site (the store artifact, not a dev copy):
+
+```sh
+nix run .                 # http://127.0.0.1:8000
+PORT=9000 nix run .       # another port
 ```
 
 Run validation:
@@ -214,7 +226,10 @@ The checks are deliberately lightweight. They verify that:
 - the nested experiment page exists
 - rendered HTML contains expected title/body markers
 - every root-relative `href` in the built site names a file that exists (`lib.site.checkLinks`)
-- content files land on their routes, and frontmatter never reaches the output
+- every page renders in a text browser at 40 and 120 columns, with its heading and
+  a viewport tag (a text render, not a pixel-layout measurement)
+- content files land on their routes, frontmatter never reaches the output, and a
+  `_` partial is never routed
 - route derivation and frontmatter parsing hold as pure functions
 - escaping and attribute rendering hold on the pure renderer
 

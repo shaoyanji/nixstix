@@ -37,6 +37,20 @@
           htmlexp = htmlExperiment;
         };
 
+        # `nix run .` serves the built site over loopback: the artifact Pages
+        # gets, not a second copy, and no dev server that renders differently.
+        apps = {
+          default = {
+            type = "app";
+            program = "${pkgs.writeShellScript "nixstix-serve" ''
+              set -eu
+              port="''${PORT:-8000}"
+              exec ${pkgs.python3}/bin/python3 -m http.server --bind 127.0.0.1 "$port" --directory ${defaultSite}
+            ''}";
+            meta.description = "Serve the built site on 127.0.0.1:8000 (PORT overrides)";
+          };
+        };
+
         checks =
           {
             default-build = defaultSite;
@@ -77,6 +91,48 @@
                 echo 'frontmatter leaked into the page' >&2
                 exit 1
               fi
+              # An underscore marks a partial: read as content, never routed.
+              if [ -e ${defaultSite}/_partial/index.html ]; then
+                echo 'a _ partial became a page' >&2
+                exit 1
+              fi
+              touch $out
+            '';
+            # Every page rendered in a text browser at a phone width and a desk
+            # width. This is a text render, not a pixel-layout measurement: it
+            # proves the body parses and survives a narrow viewport, not that
+            # the CSS reflows.
+            pages-render = pkgs.runCommand "nixstix-pages-render" {
+              nativeBuildInputs = [ pkgs.lynx ];
+            } ''
+              export HOME=$(mktemp -d)
+              shopt -s globstar nullglob
+              for f in ${defaultSite}/**/*.html; do
+                page="''${f#${defaultSite}/}"
+                heading=$(sed -n 's:.*<h1>\([^<]*\)</h1>.*:\1:p' "$f")
+                grep -q '<title>' "$f" || {
+                  echo "no title in $page" >&2
+                  exit 1
+                }
+                # The viewport tag is what makes a narrow width narrow at all.
+                grep -q 'name="viewport"' "$f" || {
+                  echo "no viewport meta in $page" >&2
+                  exit 1
+                }
+                for width in 40 120; do
+                  lynx -dump -nolist -force_html -width=$width "file://$f" > "dump-$width.txt"
+                  test -s "dump-$width.txt" || {
+                    echo "empty render at width $width in $page" >&2
+                    exit 1
+                  }
+                  if [ -n "$heading" ]; then
+                    grep -Fq "$heading" "dump-$width.txt" || {
+                      echo "heading missing at width $width in $page" >&2
+                      exit 1
+                    }
+                  fi
+                done
+              done
               touch $out
             '';
             # Route and frontmatter rules, pure: no build, no files.

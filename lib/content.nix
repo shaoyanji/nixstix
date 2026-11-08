@@ -102,7 +102,9 @@ let
         let
           entry = entries.${name};
         in
-        if lib.hasPrefix "." name then []
+        # `_` marks a partial: a body another page pulls in, not a page of its
+        # own (`_index.md`), so it is read but never routed.
+        if lib.hasPrefix "." name || lib.hasPrefix "_" name then []
         else if entry == "directory" then markdownFiles (dir + "/${name}") "${prefix}${name}/"
         else if entry == "regular" && lib.hasSuffix ".md" name
         then [{
