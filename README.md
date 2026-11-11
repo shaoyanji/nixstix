@@ -1,5 +1,7 @@
 # nixstix
 
+![nixstix: markdown pages compiled into one finished web page](https://res.cloudinary.com/de1eajx01/image/upload/f_auto,q_auto,w_1200/assets/repos/nixstix)
+
 `nixstix` is a small static site generator written in Nix.
 
 It is intentionally narrow:
