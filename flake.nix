@@ -83,6 +83,7 @@
             content-routes = pkgs.runCommand "nixstix-content-routes" { } ''
               test -f ${defaultSite}/overview/index.html
               test -f ${defaultSite}/guide/content-directory/index.html
+              test -f ${defaultSite}/guide/index.html
               grep -q '<title>Overview</title>' ${defaultSite}/overview/index.html
               grep -q '<title>Content directory</title>' ${defaultSite}/guide/content-directory/index.html
               grep -q 'Thin by design' ${defaultSite}/overview/index.html
