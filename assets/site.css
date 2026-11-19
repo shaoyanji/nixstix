@@ -30,6 +30,11 @@ a {
   color: var(--accent);
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 code,
 pre {
   font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
